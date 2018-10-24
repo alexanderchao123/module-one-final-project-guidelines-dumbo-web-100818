@@ -8,16 +8,16 @@ def welcome
 end
 
 def intitialize_players
-  puts "Please enter/create your username:"
-  username_input = gets.chomp
+  prompt = TTY::Prompt.new
+  username_input = prompt.ask("Please enter/create your username:")
   sign_in_user(username_input)
 end
 
 def sign_in_user(name_input)
   user = User.find_by(name: name_input)
   if user
-    puts "Hi #{user.name}! Please enter your password or type exit"
-    password_input = gets.chomp
+    prompt = TTY::Prompt.new
+    password_input = prompt.mask("Hi #{user.name}! Please enter your password:")
     if @player_one == nil
       @player_one = user if user.check_password(password_input)
     else
@@ -25,8 +25,9 @@ def sign_in_user(name_input)
     end
   else
     puts "Looks like it's your first time playing"
-    puts "Please create a password"
-    password_input = gets.chomp
+    # puts "Please create a password"
+    prompt = TTY::Prompt.new
+    password_input = prompt.mask("Please create your password:")
     user = User.create(name: name_input, password: password_input)
     if @player_one == nil
       @player_one = user
