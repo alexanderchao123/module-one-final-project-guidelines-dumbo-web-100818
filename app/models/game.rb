@@ -4,7 +4,6 @@ class Game < ActiveRecord::Base
   belongs_to :player_two, class_name: 'User', foreign_key: 'player_two_id'
   belongs_to :winner, class_name: 'User', foreign_key: 'winner_id'
   after_initialize :set_current_player
-  attr_accessor :current_player
 
 
   def set_current_player
@@ -16,26 +15,11 @@ class Game < ActiveRecord::Base
   end
 
   def change_player
-    if @current_player == player_one
-      @current_player = player_two
-    else
-      @current_player = player_one
-    end
+    @current_player == player_one ? @current_player = player_two : @current_player = player_one
   end
 
   def game_piece
-    if current_player == player_one
-      "X"
-    else
-      "O"
-    end
-  end
-
-  def turn
-    puts "#{current_player.name}, it's your turn."
-    puts "Pick where you would like to place your piece (1-9)"
-    input = gets.chomp.to_i
-    move(input)
+    current_player == player_one ? "X" : "O"
   end
 
   def valid_move?(cell)
@@ -51,14 +35,20 @@ class Game < ActiveRecord::Base
       board.layout[2][input-7] = game_piece
     else
       puts "That is not a valid input!"
+      turn
     end
   end
 
+  def turn
+    puts "#{current_player.name}, it's your turn."
+    puts "Pick where you would like to place your piece (1-9)"
+    input = gets.chomp.to_i
+    move(input)
+  end
+
   def row_check
-    rchecks = board.layout.map.with_index do |row, index|
-      !row.include?(" ") && row[0] == row[1] && row[0] == row[2]
-    end
-    rchecks.include?(true)
+    checks = board.layout.select { |row| row == ["X", "X", "X"] || row == ["O", "O", "O"]}
+    !checks.empty?
   end
 
   def column_check

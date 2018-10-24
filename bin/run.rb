@@ -7,7 +7,7 @@ def welcome
   puts "Welcome"
 end
 
-def start_game
+def intitialize_players
   puts "Please enter/create your username:"
   username_input = gets.chomp
   sign_in_user(username_input)
@@ -60,7 +60,7 @@ end
 
 welcome
 until @player_one && @player_two
-  start_game
+  intitialize_players
   puts "Hi Player Two" if @player_two == nil
 end
 select_game
