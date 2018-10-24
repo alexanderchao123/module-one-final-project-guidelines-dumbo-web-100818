@@ -15,9 +15,10 @@ end
 
 def sign_in_user(name_input)
   user = User.find_by(name: name_input)
+  decor = TTY::Prompt.new.decorate('🐧')
   if user
     prompt = TTY::Prompt.new
-    password_input = prompt.mask("Hi #{user.name}! Please enter your password:")
+    password_input = prompt.mask("Hi #{user.name}! Please enter your password:", mask:decor)
     if @player_one == nil
       @player_one = user if user.check_password(password_input)
     else
@@ -25,9 +26,8 @@ def sign_in_user(name_input)
     end
   else
     puts "Looks like it's your first time playing"
-    # puts "Please create a password"
     prompt = TTY::Prompt.new
-    password_input = prompt.mask("Please create your password:")
+    password_input = prompt.mask("Please create your password:", mask:decor)
     user = User.create(name: name_input, password: password_input)
     if @player_one == nil
       @player_one = user
@@ -38,15 +38,12 @@ def sign_in_user(name_input)
 end
 
 def select_game
-  puts "Enter 1 to play Tic Tac Toe or 2 to play Connect Four"
-  game_input = gets.chomp
-  if game_input == "1"
+  prompt = TTY::Prompt.new
+  game_input = prompt.select("Do you want to play Tic Tac Toe or Connect Four:", ["Tic Tac Toe", "Connect Four"])
+  if game_input == "Tic Tac Toe"
     start_tic_tac_toe
-  elsif game_input == "2"
+  elsif game_input == "Connect Four"
     start_connect_four
-  else
-    puts "That's not a valid selection"
-    select_game
   end
 end
 
