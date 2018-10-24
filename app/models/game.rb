@@ -1,17 +1,11 @@
 class Game < ActiveRecord::Base
   has_many :rounds
   has_many :users, through: :rounds
-  after_initialize :set_board, :set_current_player
+  after_initialize :set_board #:set_current_player
   attr_accessor :board
 
   def set_board
     @board = tic_tac_toe
-  end
-
-  def display_board
-    board.each_with_index do |row, index|
-      puts row.join("|")
-    end
   end
 
   def tic_tac_toe
@@ -22,46 +16,53 @@ class Game < ActiveRecord::Base
     ]
   end
 
-  # def set_current_player
-  #   @current_player = player_one
-  # end
-  #
-  # def current_player
-  #   @current_player
-  # end
-  #
-  # def change_player
-  #   @current_player == player_one ? @current_player = player_two : @current_player = player_one
-  # end
+  def display_board
+    board.each_with_index do |row, index|
+      puts row.join("|")
+    end
+  end
 
-  def game_piece
-    current_player == player_one ? "X" : "O"
+  def set_current_player(player:)
+    @current_player = player
+  end
+
+  def current_player
+    @current_player
+  end
+
+  def change_player(round:)
+    @current_player == round.player_one ? @current_player = round.player_two : @current_player = round.player_one
+  end
+
+  def game_piece(round:)
+    current_player == round.player_one ? "X" : "O"
   end
 
   def valid_move?(cell)
     cell == " "
   end
 
-  def move(input)
-    if (1..3).include?(input) && valid_move?(board[0][input-1])
-      board[0][input-1] = game_piece
-    elsif (4..6).include?(input) && valid_move?(board[1][input-4])
-      board[1][input-4] = game_piece
-    elsif (7..9).include?(input) && valid_move?(board[2][input-7])
-      board[2][input-7] = game_piece
+  def move(round:, player: current_player, position:)
+    piece = Piece.create(round: round, user: player, placement: position, piece_type: game_piece(round: round))
+    if (1..3).include?(position) && valid_move?(board[0][position-1])
+      board[0][position-1] = piece.piece_type
+    elsif (4..6).include?(position) && valid_move?(board[1][position-4])
+      board[1][position-4] = piece.piece_type
+    elsif (7..9).include?(position) && valid_move?(board[2][position-7])
+      board[2][position-7] = piece.piece_type
     else
       puts "That is not a valid input!"
-      turn
+      turn(round: round)
     end
   end
 
-  def turn
+  def turn(round:)
     puts "#{current_player.name}, it's your turn."
     # puts "Pick where you would like to place your piece (1-9)"
     # input = gets.chomp.to_i
     prompt = TTY::Prompt.new
     input = prompt.select("Pick where you would like to place your piece:", ["1", "2", "3", "4", "5", "6", "7", "8", "9"], per_page: 9)
-    move(input.to_i)
+    move(round: round, position: input.to_i)
   end
 
   def row_check
@@ -92,10 +93,10 @@ class Game < ActiveRecord::Base
     row_check || column_check || diagonal_check || reverse_diagonal_check
   end
 
-  def win
+  def win(round:)
     if win?
-      self.winner = current_player
-      self.status = "complete"
+      round.update(winner: current_player)
+      round.update(status: "complete")
     end
   end
 
@@ -103,20 +104,23 @@ class Game < ActiveRecord::Base
     puts "It looks like a draw"
   end
 
-  def congratulations
-    puts "Congratulations #{winner.name}!!!"
+  def congratulations(round:)
+    puts "Congratulations #{round.winner.name}!!!"
   end
 
-  def start
-    until full_board || status == "complete"
+  def start(round:)
+    set_current_player(player: round.player_one)
+
+    until full_board || round.status == "complete"
       system "clear"
       display_board
-      turn
-      win
-      change_player unless win
+      turn(round: round)
+      # binding.pry
+      win(round: round)
+      change_player(round: round) unless win(round: round)
     end
     display_board
-    winner ? congratulations : draw
+    round.winner ? congratulations(round: round) : draw
   end
 
 end

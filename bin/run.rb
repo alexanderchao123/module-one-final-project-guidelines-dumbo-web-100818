@@ -48,9 +48,9 @@ def select_game
 end
 
 def start_tic_tac_toe
-  board = Board.new(game_type: "tic tac toe")
-  game = Game.create(player_one: @player_one, player_two: @player_two, board: board)
-  game.start
+  game = Game.all.first
+  round = Round.create(game: game, player_one: @player_one, player_two: @player_two)
+  round.start
 end
 
 
@@ -61,4 +61,4 @@ until @player_one && @player_two
   intitialize_players
   puts "Hi Player Two" if @player_two == nil
 end
-select_game
+start_tic_tac_toe
