@@ -1,14 +1,8 @@
 class Game < ActiveRecord::Base
   has_many :rounds
   has_many :users, through: :rounds
-  after_initialize :set_board #:set_current_player
-  attr_accessor :board #, :move_select
-
-  # @move_select = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "exit"]
-
-  # def move_select=()
-  #   @move_select
-  # end
+  after_initialize :set_board
+  attr_accessor :board
 
   def set_board
     @board = tic_tac_toe
@@ -25,7 +19,8 @@ class Game < ActiveRecord::Base
   def display_board
     system "clear"
     board.each_with_index do |row, index|
-      puts row.join("|")
+      puts row.join("||")
+      puts "-------" if index < board.length - 1
     end
   end
 
