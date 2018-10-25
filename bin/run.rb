@@ -38,12 +38,17 @@ def sign_in_user(name_input)
 end
 
 def select_game
+  system "clear"
   prompt = TTY::Prompt.new
-  game_input = prompt.select("Do you want to play Tic Tac Toe or Connect Four:", ["Tic Tac Toe", "Connect Four"])
-  if game_input == "Tic Tac Toe"
-    start_tic_tac_toe
-  elsif game_input == "Connect Four"
-    start_connect_four
+  game_input = prompt.select("What do you want to play?", ["Tic Tac Toe", {name: "Connect Four", disabled: '(not available)'}, {name: "Chess", disabled: '(not available)'}, {name: "Checkers", disabled: '(not available)'}, "exit"])
+  until game_input == "exit"
+    if game_input == "Tic Tac Toe"
+      start_tic_tac_toe
+    elsif game_input == "Connect Four"
+      start_connect_four
+    end
+    system "clear"
+    game_input = prompt.select("What do you want to play?", ["Tic Tac Toe", {name: "Connect Four", disabled: '(not available)'}, {name: "Chess", disabled: '(not available)'}, {name: "Checkers", disabled: '(not available)'}, "exit"])
   end
 end
 
@@ -61,4 +66,4 @@ until @player_one && @player_two
   intitialize_players
   puts "Hi Player Two" if @player_two == nil
 end
-start_tic_tac_toe
+select_game

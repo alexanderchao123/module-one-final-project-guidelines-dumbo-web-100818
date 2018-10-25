@@ -17,6 +17,7 @@ class Game < ActiveRecord::Base
   end
 
   def display_board
+    system "clear"
     board.each_with_index do |row, index|
       puts row.join("|")
     end
@@ -42,6 +43,32 @@ class Game < ActiveRecord::Base
     cell == " "
   end
 
+  def save_and_quit
+    puts "Play again soon"
+    exit
+  end
+
+  def forfeit(round:)
+    round.update(status: "forfeit")
+    # play_again
+  end
+
+  # def quit_to_menu
+  #   welcome
+  # end
+
+  def quit(round:)
+    prompt = TTY::Prompt.new
+    input = prompt.select("Do you want to save or forfeit", ["save & quit", "forfeit", "cancel"])
+    if input == "save & quit"
+      save_and_quit
+    elsif input == "forfeit"
+      forfeit(round: round)
+    else
+      return
+    end
+  end
+
   def move(round:, player: current_player, position:)
     piece = Piece.create(round: round, user: player, placement: position, piece_type: game_piece(round: round))
     if (1..3).include?(position) && valid_move?(board[0][position-1])
@@ -50,18 +77,19 @@ class Game < ActiveRecord::Base
       board[1][position-4] = piece.piece_type
     elsif (7..9).include?(position) && valid_move?(board[2][position-7])
       board[2][position-7] = piece.piece_type
+    elsif position == 0
+      quit(round: round)
     else
-      puts "That is not a valid input!"
+      display_board
+      puts "Invalid input"
       turn(round: round)
     end
   end
 
   def turn(round:)
     puts "#{current_player.name}, it's your turn."
-    # puts "Pick where you would like to place your piece (1-9)"
-    # input = gets.chomp.to_i
     prompt = TTY::Prompt.new
-    input = prompt.select("Pick where you would like to place your piece:", ["1", "2", "3", "4", "5", "6", "7", "8", "9"], per_page: 9)
+    input = prompt.select("Pick where you would like to place your piece:", ["1", "2", "3", "4", "5", "6", "7", "8", "9", "exit"], per_page: 10)
     move(round: round, position: input.to_i)
   end
 
@@ -93,11 +121,10 @@ class Game < ActiveRecord::Base
     row_check || column_check || diagonal_check || reverse_diagonal_check
   end
 
-  def win(round:)
-    if win?
-      round.update(winner: current_player)
-      round.update(status: "complete")
-    end
+  def set_winner(round:)
+    round.update(winner: current_player)
+    round.update(status: "complete")
+    round.winner.update(wins: round.winner.wins += 1)
   end
 
   def draw
@@ -111,13 +138,11 @@ class Game < ActiveRecord::Base
   def start(round:)
     set_current_player(player: round.player_one)
 
-    until full_board || round.status == "complete"
-      system "clear"
+    until full_board || round.status == "complete" || round.status == "forfeit"
       display_board
       turn(round: round)
-      # binding.pry
-      win(round: round)
-      change_player(round: round) unless win(round: round)
+      win(round: round) if win?
+      change_player(round: round) unless win?
     end
     display_board
     round.winner ? congratulations(round: round) : draw

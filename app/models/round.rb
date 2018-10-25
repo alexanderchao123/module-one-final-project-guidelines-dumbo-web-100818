@@ -6,7 +6,6 @@ class Round < ActiveRecord::Base
   has_many :pieces
 
   def start
-    #, player_one: player_one, player_two: player_two
     game.start(round: self)
   end
 
