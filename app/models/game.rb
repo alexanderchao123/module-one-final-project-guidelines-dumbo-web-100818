@@ -2,7 +2,13 @@ class Game < ActiveRecord::Base
   has_many :rounds
   has_many :users, through: :rounds
   after_initialize :set_board #:set_current_player
-  attr_accessor :board
+  attr_accessor :board #, :move_select
+
+  # @move_select = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "exit"]
+
+  # def move_select=()
+  #   @move_select
+  # end
 
   def set_board
     @board = tic_tac_toe
@@ -50,16 +56,10 @@ class Game < ActiveRecord::Base
 
   def forfeit(round:)
     round.update(status: "forfeit")
-    # play_again
   end
 
-  # def quit_to_menu
-  #   welcome
-  # end
-
   def quit(round:)
-    prompt = TTY::Prompt.new
-    input = prompt.select("Do you want to save or forfeit", ["save & quit", "forfeit", "cancel"])
+    input = PROMPT.select("Do you want to save or forfeit", ["save & quit", "forfeit", "cancel"])
     if input == "save & quit"
       save_and_quit
     elsif input == "forfeit"
@@ -70,12 +70,14 @@ class Game < ActiveRecord::Base
   end
 
   def move(round:, player: current_player, position:)
-    piece = Piece.create(round: round, user: player, placement: position, piece_type: game_piece(round: round))
     if (1..3).include?(position) && valid_move?(board[0][position-1])
+      piece = Piece.create(round: round, user: player, placement: position, piece_type: game_piece(round: round))
       board[0][position-1] = piece.piece_type
     elsif (4..6).include?(position) && valid_move?(board[1][position-4])
+      piece = Piece.create(round: round, user: player, placement: position, piece_type: game_piece(round: round))
       board[1][position-4] = piece.piece_type
     elsif (7..9).include?(position) && valid_move?(board[2][position-7])
+      piece = Piece.create(round: round, user: player, placement: position, piece_type: game_piece(round: round))
       board[2][position-7] = piece.piece_type
     elsif position == 0
       quit(round: round)
@@ -88,8 +90,7 @@ class Game < ActiveRecord::Base
 
   def turn(round:)
     puts "#{current_player.name}, it's your turn."
-    prompt = TTY::Prompt.new
-    input = prompt.select("Pick where you would like to place your piece:", ["1", "2", "3", "4", "5", "6", "7", "8", "9", "exit"], per_page: 10)
+    input = PROMPT.select("Pick where you would like to place your piece:", ["1", "2", "3", "4", "5", "6", "7", "8", "9", "exit"], per_page: 10)
     move(round: round, position: input.to_i)
   end
 
