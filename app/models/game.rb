@@ -141,7 +141,7 @@ class Game < ActiveRecord::Base
     until full_board || round.status == "complete" || round.status == "forfeit"
       display_board
       turn(round: round)
-      win(round: round) if win?
+      set_winner(round: round) if win?
       change_player(round: round) unless win?
     end
     display_board
