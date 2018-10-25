@@ -4,6 +4,7 @@ require_relative '../config/environment'
 @player_two = nil
 
 def welcome
+  system "clear"
   puts "Welcome"
 end
 
@@ -34,17 +35,34 @@ def sign_in_user(name_input)
   end
 end
 
-def select_game
+def select_menu
   system "clear"
   select_array = ["Tic Tac Toe", {name: "Connect Four", disabled: '(not available)'}, {name: "Chess", disabled: '(not available)'}, {name: "Checkers", disabled: '(not available)'}, "View #{@player_one.name}'s Profile", "View #{@player_two.name}'s Profile", "Exit"]
   game_input = PROMPT.select("What do you want to play?", select_array)
-  until game_input == "exit"
+  until game_input == "Exit"
     if game_input == "Tic Tac Toe"
       start_tic_tac_toe
+    elsif game_input == "View #{@player_one.name}'s Profile"
+      profile_input = ""
+      until profile_input == "Back"
+        system "clear"
+        puts "Wins: #{@player_one.wins}"
+        puts ""
+        puts ""
+        puts ""
+        profile_input = PROMPT.select("Pick a game to view replay or return to Main Menu", ["Game #{past_rounds(@player_one)[0].id}", "Game #{past_rounds(@player_one)[1].id}", "Game #{past_rounds(@player_one)[2].id}", "Main Menu"])
+      end
+    elsif game_input == "View #{@player_two.name}'s Profile"
+      puts "Wins: #{@player_one.wins}"
     end
     system "clear"
     game_input = PROMPT.select("What do you want to play?", select_array)
   end
+  system "clear"
+end
+
+def past_rounds(user)
+  user.rounds.last(3)
 end
 
 def start_tic_tac_toe
@@ -61,4 +79,4 @@ until @player_one && @player_two
   intitialize_players
   puts "Hi Player Two" if @player_two == nil
 end
-select_game
+select_menu

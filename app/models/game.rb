@@ -49,9 +49,8 @@ class Game < ActiveRecord::Base
     cell == " "
   end
 
-  def save_and_quit
-    puts "Play again soon"
-    exit
+  def save(round:)
+    round.update(status: "save")
   end
 
   def forfeit(round:)
@@ -59,13 +58,11 @@ class Game < ActiveRecord::Base
   end
 
   def quit(round:)
-    input = PROMPT.select("Do you want to save or forfeit", ["save & quit", "forfeit", "cancel"])
-    if input == "save & quit"
-      save_and_quit
+    input = PROMPT.select("Do you want to save or forfeit", ["save", "forfeit", "cancel"])
+    if input == "save"
+      save(round: round)
     elsif input == "forfeit"
       forfeit(round: round)
-    else
-      return
     end
   end
 
@@ -128,25 +125,51 @@ class Game < ActiveRecord::Base
     round.winner.update(wins: round.winner.wins += 1)
   end
 
-  def draw
-    puts "It looks like a draw"
+  def save_message
+    puts "This game has saved"
   end
 
-  def congratulations(round:)
-    puts "Congratulations #{round.winner.name}!!!"
+  def forfeit_message
+    puts "This game has been forfeited"
+  end
+
+  def draw_message
+    puts "It looks like a draw!"
+  end
+
+  def congratulations_message(round:)
+    puts "Congratulations #{round.winner.name}, you're the winner!!!"
   end
 
   def start(round:)
     set_current_player(player: round.player_one)
-
-    until full_board || round.status == "complete" || round.status == "forfeit"
+    until full_board || round.status == "complete" || round.status == "forfeit" || round.status == "save"
       display_board
       turn(round: round)
       set_winner(round: round) if win?
       change_player(round: round) unless win?
     end
     display_board
-    round.winner ? congratulations(round: round) : draw
+    if round.status == "save"
+      save_message
+    elsif round.status == "forfeit"
+      forfeit_message
+    elsif round.winner
+      congratulations_message(round: round)
+    else
+      draw_message
+    end
+  end
+
+  def replay_board(piece:)
+    position = piece.placement.to_i
+    if (1..3).include?(position)
+      board[0][position-1] = piece.piece_type
+    elsif (4..6).include?(position)
+      board[1][position-4] = piece.piece_type
+    elsif (7..9).include?(position)
+      board[2][position-7] = piece.piece_type
+    end
   end
 
 end
