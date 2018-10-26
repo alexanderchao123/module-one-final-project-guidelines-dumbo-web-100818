@@ -162,7 +162,6 @@ def select_menu
         profile_input = user_rounds_details(@player_one)
       end
     elsif game_input == "View #{@player_two.name}'s Profile"
-      binding.pry
       profile_input = ""
       until profile_input == "Return To Main Menu"
         system "clear"
@@ -182,14 +181,9 @@ end
 def user_rounds_details(user)
   puts "Wins: #{user.wins}"
   rounds = past_rounds(user)
-  profile_input = PROMPT.select("Pick a game to view replay or return to Main Menu", ["Game #{rounds[0].id}", "Game #{rounds[1].id}", "Game #{rounds[2].id}", "Return To Main Menu"])
-  if profile_input == "Game #{rounds[0].id}" && rounds[0].pieces.length > 0
-    rounds[0].replay
-  elsif profile_input == "Game #{rounds[1].id}" && rounds[1].pieces.length > 0
-    rounds[1].replay
-  elsif profile_input == "Game #{rounds[2].id}" && rounds[2].pieces.length > 0
-    rounds[2].replay
-  end
+  round_ids = rounds.map {|round| "Round: #{round.id}" }.push("Return To Main Menu")
+  profile_input = PROMPT.select("Pick a game to view replay or return to Main Menu", round_ids)
+  rounds.each { |round| round.replay if "Round: #{round.id}" == profile_input }
   sleep(3) unless profile_input == "Return To Main Menu"
   profile_input
 end

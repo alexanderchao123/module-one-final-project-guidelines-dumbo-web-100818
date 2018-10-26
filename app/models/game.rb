@@ -44,7 +44,7 @@ class Game < ActiveRecord::Base
     cell == " "
   end
 
-  def save(round:)
+  def save_game(round:)
     round.update(status: "save")
   end
 
@@ -55,7 +55,7 @@ class Game < ActiveRecord::Base
   def quit(round:)
     input = PROMPT.select("Do you want to save or forfeit", ["save", "forfeit", "cancel"])
     if input == "save"
-      save(round: round)
+      save_game(round: round)
     elsif input == "forfeit"
       forfeit(round: round)
     end
