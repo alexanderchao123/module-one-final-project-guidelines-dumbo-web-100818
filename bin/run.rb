@@ -39,7 +39,7 @@ puts " █████╗ ██╗     ███████╗██╗  █�
                     ╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝╚═╝  ╚═══╝   ╚═╝
                                                                                                          "
 
-sleep(1)
+sleep(3.0/2.0)
 system "clear"
 
 
@@ -116,15 +116,15 @@ def sign_in_user(name_input)
   user = User.find_by(name: name_input)
   decor = TTY::Prompt.new.decorate('🐧')
   if user
-    password_input = PROMPT.mask("Hi #{user.name}! Please enter your password:", mask:decor)
+    password_input = PROMPT.mask("Ugh #{user.name}! It's you again? Please enter your password:", mask:decor)
     if @player_one == nil
       @player_one = user if user.check_password(password_input)
     else
       @player_two = user if user.check_password(password_input)
     end
   else
-    puts "Looks like it's your first time playing"
-    password_input = PROMPT.mask("Please create your password:", mask:decor)
+    puts "Looks like it's your first time playing."
+    password_input = PROMPT.mask("Please create your password, and make it good:", mask:decor)
     user = User.create(name: name_input, password: password_input)
     if @player_one == nil
       @player_one = user
@@ -151,7 +151,7 @@ def select_menu
 
   pid = fork{exec 'afplay' , "./music/opening.mp3" }
   select_array = ["Tic Tac Toe", {name: "Connect Four", disabled: '(not available)'}, {name: "Chess", disabled: '(not available)'}, {name: "Checkers", disabled: '(not available)'}, "View #{@player_one.name}'s Profile", "View #{@player_two.name}'s Profile", "Exit"]
-  game_input = PROMPT.select("What do you want to play?", select_array)
+  game_input = PROMPT.select("I've never seen such indecision! What do you want to do?", select_array, per_page: 8)
   until game_input == "Exit"
     if game_input == "Tic Tac Toe"
       start_tic_tac_toe
@@ -169,6 +169,19 @@ def select_menu
       end
     end
     system "clear"
+    puts "❌════⭕️════❌════⭕️════❌════⭕️════❌════⭕️════❌═════⭕️"
+    puts "
+   o     o         o         o     o
+   8b   d8                   8b   d8
+   8`b d'8 .oPYo. o8 odYo.   8`b d'8 .oPYo. odYo. o    o
+   8 `o' 8 .oooo8  8 8' `8   8 `o' 8 8oooo8 8' `8 8    8
+   8     8 8    8  8 8   8   8     8 8.     8   8 8    8
+   8     8 `YooP8  8 8   8   8     8 `Yooo' 8   8 `YooP'
+   ..::::..:.....::....::..::..::::..:.....:..::..:.....:
+   ::::::::::::::::::::::::::::::::::::::::::::::::::::::
+   ::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+    puts "❌════⭕️════❌════⭕️════❌════⭕️════❌════⭕️════❌═════⭕️"
+
     game_input = PROMPT.select("What do you want to play?", select_array)
   end
   system "clear"

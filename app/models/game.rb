@@ -53,7 +53,7 @@ class Game < ActiveRecord::Base
   end
 
   def quit(round:)
-    input = PROMPT.select("Do you want to save or forfeit", ["save", "forfeit", "cancel"])
+    input = PROMPT.select("I always knew you were a quitter:", ["save", "forfeit", "cancel"])
     if input == "save"
       save_game(round: round)
     elsif input == "forfeit"
@@ -75,7 +75,7 @@ class Game < ActiveRecord::Base
       quit(round: round)
     else
       display_board
-      puts "Invalid input"
+      puts "You blind or trying to cheat? There's a piece there!"
       turn(round: round)
     end
   end
@@ -121,19 +121,19 @@ class Game < ActiveRecord::Base
   end
 
   def save_message
-    puts "This game has saved"
+    puts "Game saved. Defeat delayed"
   end
 
   def forfeit_message
-    puts "This game has been forfeited"
+    puts "You can't even lose with dignity. Game forfeit"
   end
 
   def draw_message
-    puts "It looks like a draw!"
+    puts "Draw! You're both equally terrible."
   end
 
   def congratulations_message(round:)
-    puts "Congratulations #{round.winner.name}, you're the winner!!!"
+    puts "Congratulations #{round.winner.name}, you managed to win a game!"
   end
 
   def start(round:)
