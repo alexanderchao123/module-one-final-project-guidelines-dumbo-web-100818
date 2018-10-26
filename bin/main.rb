@@ -5,10 +5,6 @@ def welcome
   puts "Welcome to Game Night!"
 end
 
-def intitialize_players
-  name_input = PROMPT.ask("Please enter/create your username:")
-  sign_in_user(name_input)
-end
 
 def sign_in_user(name_input)
   user = User.find_by(name: name_input)
@@ -97,33 +93,56 @@ def start_tic_tac_toe
   round.start
 end
 
-
-def main_menu
-  main_menu_input = ""
-  player = @player_one ? @player_two : @player_one
-  until main_menu_input == "Exit"
-    main_menu_input = PROMPT.select("What would you like to do?", ["Sign In", "Sign Up", "Exit"])
-    # until intitialize_players?
-      if main_menu_input == "Sign In"
-        # call sign in user
-        # once the user is authenticated, intitialize_players
-      elsif main_menu_input == "Sign Up"
-        # call sign up user
-        # once the user signs up, intitialize_players
-      # elsif main_menu_input == "Select Games"
-      #   # games_menu
-      end
-    # end
-  end
-end
-
 def intitialize_players?
   @player_one && @player_two
 end
 
+def intitialize_players
+  name_input = PROMPT.ask("Please enter/create your username:")
+  sign_in_user(name_input)
+
+  player = @player_one ? "Player Two" : "Player One"
+  until main_menu_input == "Exit"
+    main_menu_input = PROMPT.select("What would you like to do #{player}?", ["Sign In", "Sign Up", "Exit"])
+    # until intitialize_players?
+    if main_menu_input == "Sign In"
+      # call sign in user
+      # once the user is authenticated, intitialize_players
+    elsif main_menu_input == "Sign Up"
+      # call sign up user
+      # once the user signs up, intitialize_players
+      # elsif main_menu_input == "Select Games"
+      #   # games_menu
+    end
+    # end
+  end
+end
+
+def main_menu
+  player = @player_one ? "player two" : "player one"
+  menu_direction = intitialize_players? ? "What would you guys like to do?" : "What would you like to do #{player}?"
+  menu_selections = intitialize_players? ? ["Games Menu", "Exit"] : ["Sign In", "Sign Up", "Exit"]
+  main_menu_input = ""
+  until main_menu_input == "Exit"
+    main_menu_input = PROMPT.select(menu_direction, menu_selections)
+    if intitialize_players? && main_menu_input == "Games Menu"
+      games_menu
+    elsif main_menu_input == "Sign In" || main_menu_input == "Sign Up"
+      intitialize_players(main_menu_input)
+    end
+  end
+end
+
 # until intitialize_players?
-#   intitialize_players
-#   puts "Hi Player Two" if @player_two == nil
+  # if main_menu_input == "Sign In"
+  #   # call sign in user
+  #   # once the user is authenticated, intitialize_players
+  # elsif main_menu_input == "Sign Up"
+  #   # call sign up user
+  #   # once the user signs up, intitialize_players
+  #   # elsif main_menu_input == "Select Games"
+  #   #   # games_menu
+  # end
 # end
 
 def load_game_night
